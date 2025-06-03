@@ -110,15 +110,14 @@
 // Puerto PC9
 
 .equ MODER9_OUT, (1 << 18)
-.equ LED_ON, (1 << 9)
-.equ LED_OFF, (0 << 9)
+.equ LED9_ON, (1 << 9)
+.equ LED9_OFF, (0 << 9)
 
 // Puerto PC10
 
 .equ MODER10_OUT, (1 << 20)
-.equ LED2_ON, (1 << 10)
-.equ LED2_OFF, (0 << 10)
-
+.equ LED10_ON, (1 << 10)
+.equ LED10_OFF, (0 << 10)
 
 
 
