@@ -45,14 +45,10 @@
 ====================*/
 
 
-/****Arreglo de LEDs para indicar el estado ****/
+/*********Arreglo de LEDs para indicar el estado *********/
 
 
 // Puerto PC1
-
-.equ GPIOC_BASE, 0x40020800
-.equ GPIOC_MODER_OFFSET, 0x00
-.equ GPIOC_MODER, (GPIOC_BASE + GPIOC_MODER_OFFSET)
 
 .equ MODER1_OUT, (1 << 2) 
 
@@ -62,23 +58,50 @@
 .equ LED1_ON, (1 << 1)
 .equ LED1_OFF, (0 << 1)
 
-
 // Puerto PC2
+
+.equ MODER2_OUT, (1 << 4)
+.equ LED2_ON, (1 << 2)
+.equ LED2_OFF, (0 << 2)
 
 // Puerto PC3
 
+.equ MODER3_OUT, (1 << 6)
+.equ LED3_ON, (1 << 3)
+.equ LED3_OFF, (0 << 3)
+
 // Puerto PC4
+
+.equ MODER4_OUT, (1 << 8)
+.equ LED4_ON, (1 << 4)
+.equ LED4_OFF, (0 << 4)
 
 // Puerto PC5
 
+.equ MODER5_OUT, (1 << 10)
+.equ LED5_ON, (1 << 5)
+.equ LED5_OFF, (0 << 5)
+
 // Puerto PC6
+
+.equ MODER6_OUT, (1 << 12)
+.equ LED6_ON, (1 << 6)
+.equ LED6_OFF, (0 << 6)
 
 // Puerto PC7
 
+.equ MODER7_OUT, (1 << 14)
+.equ LED7_ON, (1 << 7)
+.equ LED7_OFF, (0 << 7)
+
 // Puerto PC8
 
+.equ MODER8_OUT, (1 << 16)
+.equ LED8_ON, (1 << 8)
+.equ LED8_OFF, (0 << 8)
 
-/****LEDs para indicar la velocidad de los cambios de estado****/
+
+/*********LEDs para indicar la velocidad de los cambios de estado*********/
 
 
 
