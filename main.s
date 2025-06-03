@@ -34,8 +34,11 @@
 .equ GPIOC_MODER_OFFSET, 0x00
 .equ GPIOC_MODER, (GPIOC_BASE + GPIOC_MODER_OFFSET)
 
+// GPIOC como IDR
+
 .equ GPIOC_IDR_OFFSET, 0x10
 .equ GPIOC_IDR, (GPIOC_BASE + GPIOC_IDR_OFFSET)
+
 
 .equ PRESS_PC13, (1 << 13) 
 
@@ -44,17 +47,17 @@
     Salidas
 ====================*/
 
+/*********LEDs para indicar el estado *********/
 
-/*********Arreglo de LEDs para indicar el estado *********/
+// GPIOC como ODR
+
+.equ GPIOC_ODR_OFFSET, 0x14
+.equ GPIOC_ODR, (GPIOC_BASE + GPIOC_ODR_OFFSET)
 
 
 // Puerto PC1
 
 .equ MODER1_OUT, (1 << 2) 
-
-.equ GPIOC_ODR_OFFSET, 0x14
-.equ GPIOC_ODR, (GPIOC_BASE + GPIOC_ODR_OFFSET)
-
 .equ LED1_ON, (1 << 1)
 .equ LED1_OFF, (0 << 1)
 
@@ -102,6 +105,20 @@
 
 
 /*********LEDs para indicar la velocidad de los cambios de estado*********/
+
+
+// Puerto PC9
+
+.equ MODER9_OUT, (1 << 18)
+.equ LED_ON, (1 << 9)
+.equ LED_OFF, (0 << 9)
+
+// Puerto PC10
+
+.equ MODER10_OUT, (1 << 20)
+.equ LED2_ON, (1 << 10)
+.equ LED2_OFF, (0 << 10)
+
 
 
 
