@@ -1,125 +1,30 @@
-
 /*********************************************************
 * @file      main.s
-* @author    Ivan Morataya
-*			 Juan Gualim
-*			 Oscar Rompich - 24880
+* @authors   Ivan Morataya, Juan Gualim, Oscar Rompich
 * @date      June, 2025
-* @brief     Secuencia de 8 bits 
-* @details
-*			(descripcion del proyecto)
+* @brief     Secuencia de 8 LEDs con retardo de 1.5s
 **********************************************************/
 
 /*==================
     DEFINICIONES
 ====================*/
 
-// CLK AHB1 
+.equ RCC_BASE,           0x40023800
+.equ AHB1ENR_OFFSET,     0x30
+.equ RCC_AHB1ENR,        (RCC_BASE + AHB1ENR_OFFSET)
+.equ GPIOC_EN,           (1 << 2)
 
-.equ RCC_BASE, 0x40023800
-.equ AHB1ENR_OFFSET, 0x30
-.equ RCC_AHB1ENR, (RCC_BASE + AHB1ENR_OFFSET)
+.equ GPIOC_BASE,         0x40020800
+.equ GPIOC_MODER,        (GPIOC_BASE + 0x00)
+.equ GPIOC_ODR,          (GPIOC_BASE + 0x14)
 
-.equ GPIOC_EN, (1 << 2)
-
-
-/*==================
-    Entradas
-====================*/
-
-
-// Puerto PC13 para entrada de pushbutton
-
-.equ GPIOC_BASE, 0x40020800
-.equ GPIOC_MODER_OFFSET, 0x00
-.equ GPIOC_MODER, (GPIOC_BASE + GPIOC_MODER_OFFSET)
-
-// GPIOC como IDR
-
-.equ GPIOC_IDR_OFFSET, 0x10
-.equ GPIOC_IDR, (GPIOC_BASE + GPIOC_IDR_OFFSET)
-
-
-.equ PRESS_PC13, (1 << 13) 
-
+.equ MODER_MASK,         0x3FFFF          // Bits 1-16 para PC1–PC8 en modo salida
+.equ LED_MASK,           0x1FE            // Bits 1–8 (LED1 a LED8)
+.equ DELAY_COUNT,        22500000         // Aprox. 1.5 segundos (ajustable)
 
 /*==================
-    Salidas
+    INICIO DEL CÓDIGO
 ====================*/
-
-/*********LEDs para indicar el estado *********/
-
-// GPIOC como ODR
-
-.equ GPIOC_ODR_OFFSET, 0x14
-.equ GPIOC_ODR, (GPIOC_BASE + GPIOC_ODR_OFFSET)
-
-
-// Puerto PC1
-
-.equ MODER1_OUT, (1 << 2) 
-.equ LED1_ON, (1 << 1)
-.equ LED1_OFF, (0 << 1)
-
-// Puerto PC2
-
-.equ MODER2_OUT, (1 << 4)
-.equ LED2_ON, (1 << 2)
-.equ LED2_OFF, (0 << 2)
-
-// Puerto PC3
-
-.equ MODER3_OUT, (1 << 6)
-.equ LED3_ON, (1 << 3)
-.equ LED3_OFF, (0 << 3)
-
-// Puerto PC4
-
-.equ MODER4_OUT, (1 << 8)
-.equ LED4_ON, (1 << 4)
-.equ LED4_OFF, (0 << 4)
-
-// Puerto PC5
-
-.equ MODER5_OUT, (1 << 10)
-.equ LED5_ON, (1 << 5)
-.equ LED5_OFF, (0 << 5)
-
-// Puerto PC6
-
-.equ MODER6_OUT, (1 << 12)
-.equ LED6_ON, (1 << 6)
-.equ LED6_OFF, (0 << 6)
-
-// Puerto PC7
-
-.equ MODER7_OUT, (1 << 14)
-.equ LED7_ON, (1 << 7)
-.equ LED7_OFF, (0 << 7)
-
-// Puerto PC8
-
-.equ MODER8_OUT, (1 << 16)
-.equ LED8_ON, (1 << 8)
-.equ LED8_OFF, (0 << 8)
-
-
-/*********LEDs para indicar la velocidad de los cambios de estado*********/
-
-
-// Puerto PC9
-
-.equ MODER9_OUT, (1 << 18)
-.equ LED9_ON, (1 << 9)
-.equ LED9_OFF, (0 << 9)
-
-// Puerto PC10
-
-.equ MODER10_OUT, (1 << 20)
-.equ LED10_ON, (1 << 10)
-.equ LED10_OFF, (0 << 10)
-
-
 
 .syntax unified
 .cpu cortex-m4
@@ -131,16 +36,61 @@
 
 __main:
 
+    // ===================== Habilitar reloj GPIOC =====================
+    LDR R0, =RCC_AHB1ENR
+    LDR R1, [R0]
+    ORR R1, R1, #GPIOC_EN
+    STR R1, [R0]
 
+    // ===================== Configurar PC1-PC8 como salida =====================
+    LDR R0, =GPIOC_MODER
+    LDR R1, [R0]
+    // Limpiar los bits del 2 al 17 (PC1 a PC8)
+    LDR R2, =MODER_MASK
+    BIC R1, R1, R2
+    // Establecer modo salida para PC1-PC8 (01b cada uno = 01 01 01 01 ...)
+    LDR R2, =0x55554  // bin: 0101 0101 0101 0101 0100
+    ORR R1, R1, R2
+    STR R1, [R0]
 
+loop_main:
+    MOV R4, #1          // Comenzar con un LED (bit 1 activo)
+
+loop_leds:
+    // Encender los LEDs según el valor actual de R4
+    LDR R0, =GPIOC_ODR
+    STR R4, [R0]        // Escribir valor de salida (LEDs)
+
+    // Retardo de 1.5 segundos
+    LDR R0, =DELAY_COUNT
+    BL delay
+
+    // Verificar si ya se encendieron los 8 LEDs
+    CMP R4, #LED_MASK   // Comparar con 0x1FE (LEDs 1 a 8 encendidos)
+    BEQ restart         // Si ya están todos, reiniciar ciclo
+
+    // Sumar el siguiente bit (agregar un LED encendido)
+    LSL R4, R4, #1      // Desplazar a la izquierda
+    ORR R4, R4, #1      // Encender el siguiente LED
+
+    B loop_leds         // Repetir
+
+restart:
+    B loop_main         // Reiniciar desde un LED encendido
 
 end:
-	B end
+    B end               // Bucle infinito
 
+/*===========================
+    SUBRUTINA DE RETARDO
+===========================*/
+
+delay:
+    MOV R2, R0
+delay_loop:
+    SUBS R2, R2, #1
+    BNE delay_loop
+    BX LR
 
 .section .data
-
-
-
-	.align
-	.end
+DELAY_COUNT: .word 22500000    // Aprox. 1.5s para STM32 a 16 MHz (ajustar según tu reloj)
