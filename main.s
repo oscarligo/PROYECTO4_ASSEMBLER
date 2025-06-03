@@ -6,8 +6,10 @@
 *			 Oscar Rompich - 24880
 * @date      June, 2025
 * @brief     Secuencia de 8 bits 
+
 * @details
 *			(descripcion del proyecto)
+
 **********************************************************/
 
 /*==================
@@ -41,6 +43,10 @@
 
 
 .equ PRESS_PC13, (1 << 13) 
+
+// Puerto PC14 para entrada de pushbutton
+
+.equ PRESS_PC14, (1 << 14)
 
 
 /*==================
@@ -120,7 +126,6 @@
 .equ LED10_OFF, (0 << 10)
 
 
-
 .syntax unified
 .cpu cortex-m4
 .fpu softvfp
@@ -131,6 +136,18 @@
 
 __main:
 
+	// Habilitar el reloj del puerto C
+	LDR R0, =RCC_AHB1ENR
+	LDR R1, [R0]
+	ORR R1, R1, #GPIOC_EN
+	STR R1, [R0]
+
+	// Configurar los pines PC1 a PC10 
+	LDR R0, =GPIOC_MODER
+	LDR R1, [R0]
+	ORR R1, R1, #MODER1_OUT | MODER2_OUT | MODER3_OUT | MODER4_OUT | MODER5_OUT | MODER6_OUT | MODER7_OUT | MODER8_OUT | MODER9_OUT | MODER10_OUT
+	STR R1, [R0]
+
 
 
 
@@ -139,6 +156,11 @@ end:
 
 
 .section .data
+
+
+low_speed:			.word 7500000
+medium_speed:		.word 5000000
+high_speed:			.word 2500000
 
 
 
