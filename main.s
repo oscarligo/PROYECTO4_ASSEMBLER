@@ -2,8 +2,9 @@
 * @file      main.s
 * @authors   Ivan Morataya, Juan Gualim, Oscar Rompich
 * @date      June, 2025
-* @brief     Secuencia de 8 LEDs con retardo de 1.5s
+* @brief     Temarop 6 - Proyecto 4
 **********************************************************/
+
 
 .syntax unified
 .cpu cortex-m4
@@ -157,3 +158,11 @@ dloop_btn:
     SUBS R3, R3, #1
     BNE dloop_btn
     BX LR
+
+
+end:
+	B end
+
+
+	.align 2
+	.end
